@@ -6,6 +6,8 @@ const projectSchema = new mongoose.Schema({
 
  description: { type: String }, // Optional field for project details
 
+ technologies: { type: String }, 
+
  createdAt: { type: Date, default: Date.now }
  
 });

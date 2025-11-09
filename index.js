@@ -107,15 +107,84 @@ initializeDB();
 // .catch(err => console.log(err));
 
 
-const newTask = new Task({
- name: 'complete functions',
- project: '6910980709509efc9985c69d', // Reference to a Project ID
- team: '69108b3f7df55fbdbf89c2ef', // Reference to a Team ID
- owners: ['69109a419204907e48c87f44'], // Array of User IDs(owners)
- tags: ['Support', 'Urgent'],
- timeToComplete: 2
-});
-newTask.save().then(task => console.log(task))
-.catch(err => console.log(err));
+// const newTask = new Task({
+//  name: 'complete functions',
+//  project: '6910980709509efc9985c69d', // Reference to a Project ID
+//  team: '69108b3f7df55fbdbf89c2ef', // Reference to a Team ID
+//  owners: ['69109a419204907e48c87f44'], // Array of User IDs(owners)
+//  tags: ['Support', 'Urgent'],
+//  timeToComplete: 2
+// });
+// newTask.save().then(task => console.log(task))
+// .catch(err => console.log(err));
+
+
+//query to get projects;
+
+async function getAllProjects(){
+    try{
+        const allProj = await Project.find();
+        console.log(allProj, "Getting all projects.")
+        return allProj;
+    }
+    catch{
+        throw error;
+    }
+}
+
+// getAllProjects();
+
+//api to get projects;
+app.get("/projects", async (req, res) => {
+    try{
+        const projects = await getAllProjects();
+        if(projects){
+            res.json(projects);
+        } else{
+            res.status(404).json({error: "Projects not found."})
+        }
+    } catch(error){
+        res.status(500).json({error: "Failed to fetch Projects."})
+    }
+}
+)
+
+
+// const newProj = {
+//     name : "Real-time Chat Application",
+//     description: "A full-stack chat app enabling instant messaging between users with features like group chats, user presence, message history, and notifications. It demonstrates real-time communication using WebSockets or Socket.io with efficient backend data handling.",
+//     technologies: "React, Node.js, Socket.io, MongoDB"
+// }
+
+//method to add new projects;
+async function addNewProj(){
+    try{
+    const projNew = new Project(newProj);
+    const saveProj = await projNew.save();
+    console.log(saveProj, "project added successfully.");
+    return saveProj;
+    } catch(error){
+        throw error;
+    }
+}
+// addNewProj();
+
+// api to add new projects;
+
+app.post("/projects", async(req, res) => {
+    try{
+    const newProj = req.body;
+    const projects = await addNewProj();
+    res.status(201).json({message: "Projects Agent added successfully.", projNew : projects })
+    } catch(error){
+        res.status(500)
+    }
+})
+
+
+const PORT = 2000;
+app.listen(PORT, () => {
+    console.log(`Server is running on the port ${PORT}`)
+})
 
 

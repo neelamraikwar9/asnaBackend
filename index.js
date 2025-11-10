@@ -28,8 +28,8 @@ initializeDB();
 // });
 
 // const newTeam = new Team({
-//  name: 'Generous',
-//  description: 'Provide honest help to customers.'
+//  name: 'Kindful',
+//  description: 'Give information about products.'
 // });
 // newTeam.save().then(team => console.log(team))
 // .catch(err => console.log(err));
@@ -157,7 +157,7 @@ app.get("/projects", async (req, res) => {
 // }
 
 //method to add new projects;
-async function addNewProj(){
+async function addNewProj(newProj){
     try{
     const projNew = new Project(newProj);
     const saveProj = await projNew.save();
@@ -174,12 +174,188 @@ async function addNewProj(){
 app.post("/projects", async(req, res) => {
     try{
     const newProj = req.body;
-    const projects = await addNewProj();
-    res.status(201).json({message: "Projects Agent added successfully.", projNew : projects })
+    const projects = await addNewProj(newProj);
+    res.status(201).json({message: "Project added successfully.", projNew : projects })
     } catch(error){
-        res.status(500)
+        res.status(500).json({error: 'Failed to add Project.'})
     }
 })
+
+
+//query to get all tasks;
+
+const getAllTasks = async() => {
+    try{
+        const tasks = await Task.find();
+        console.log(tasks, "getting all tasks.")
+        return tasks;
+    } catch(error){
+        throw error;
+    }
+}
+
+// getAllTasks();
+
+// api to get all tasks
+
+app.get("/tasks", async(req, res) => {
+    try{
+    const allTasks = await getAllTasks();
+    if(allTasks){
+        res.json(allTasks);
+    } else {
+        res.status(404).json({error: "Tasks not found."})
+    }
+    } catch(error){
+        res.status(500).json({error: "Failed to fetch Tasks."})
+    }
+})
+
+
+//method to add new Task;
+
+
+// const newTask = new Task({
+//  name: 'Add a new chatboat for customers help.',
+//  project: '6910984357513e8067ff3cb7', // Reference to a Project ID
+//  team: '69116d670fb56030f0a9ea99', // Reference to a Team ID
+//  owners: ['69109a537ec2486c393ffacb'], // Array of User IDs(owners)
+//  tags: ['Support', 'Urgent'],
+//  timeToComplete: 5
+// });
+
+
+async function addNewTask(newTask){
+    try{
+        const Tasks = new Task(newTask);
+        const saveTask = await Tasks.save();
+        console.log(saveTask, "Task added successfully.")
+    } catch(error){
+        throw error;
+    }
+}
+
+// addNewTask();
+
+//api to add new task;
+
+app.post("/tasks", async (req, res) => {
+    try{
+        const newTask = req.body;
+        const newTasks = await addNewTask(newTask);
+        res.status(201).json({message: " Task added successfully.", Tasks: newTasks})
+        } 
+    catch(error){
+        res.status(500).json({error: 'Failed to add Task.'})
+    }
+})
+
+
+//api to get tasks by status;
+
+async function tasksByStatus(taskStatus){
+    try{
+        const InProgTask = await Task.findOne({status: taskStatus})
+        console.log(InProgTask, "Got Task with the status In progress.");
+        return InProgTask;
+    } catch(error){
+        throw error;
+    }
+}
+// tasksByStatus("In Progress");
+
+//api 
+app.get("/tasks/status/:taskStatus", async (req, res) => {
+    try{
+        const taskStatus = await tasksByStatus(req.params.taskStatus);
+        if(taskStatus){
+            res.json(taskStatus);
+        } else{
+        res.status(404).json({ error: "Task not found." });
+        }
+    } catch(error){
+    res.status(500).json({ error: "Failed to fetch Task by Status." });
+    }
+});
+
+
+//api to get tasks by "project", "team", "owners"
+
+async function getTasksByProjects(projId){
+    try{
+        const tasksByProjs = await Task.find({ project: projId }).populate("project");
+        console.log(tasksByProjs, "Tasks by project id.")
+        return tasksByProjs;
+    } catch(error){
+        throw error;
+    }
+}
+
+// getTasksByProjects("69109157b9e38c37e4c55feb");
+
+
+
+app.get("/tasks/byProjects/:projId", async (req, res) => {
+    try{
+        const getTaskByProj =  await getTasksByProjects(req.params.projId);
+        if(getTaskByProj){
+            res.json(getTaskByProj);
+        } else{
+            res.status(404).json({error: "Tasks by Projects id not found."})
+        }
+    } catch(error){
+        res.status(500).json({error: 'failed to fetch Tasks by project id.'})
+    }
+})
+
+
+
+
+// async function getTasksByTeams(teamId){
+//     try{
+//         const tasksByProjs = await Task.find({ team: teamId }).populate("project");
+//         console.log(tasksByProjs, "Tasks by project id.")
+//         return tasksByProjs;
+//     } catch(error){
+//         throw error;
+//     }
+// }
+
+// getTasksByTeams("69109157b9e38c37e4c55feb")
+
+
+
+
+
+// async function getTasksByOwners(ownerId){
+//     try{
+//         const tasksByProjs = await Task.find({ owners: ownerId }).populate("project");
+//         console.log(tasksByProjs, "Tasks by project id.")
+//         return tasksByProjs;
+//     } catch(error){
+//         throw error;
+//     }
+// }
+
+// getTasksByOwners("69109157b9e38c37e4c55feb")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 const PORT = 2000;

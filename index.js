@@ -345,6 +345,25 @@ app.get("/tasks/byProjects/:projId", async (req, res) => {
 
 
 
+//api to delete a task;
+async function deleteTaskById(taskId){
+    try{
+    const task = await Task.findByIdAndDelete(taskId);
+    console.log(task, "Task deleted successfully.")
+    } catch(error){
+        throw error;
+    }
+} 
+
+deleteTaskById("");
+
+
+
+
+
+
+
+
 
 
 

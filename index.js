@@ -5,7 +5,52 @@ const Team = require('./models/team.model');
 const User = require('./models/user.model');
 const Tag = require('./models/tag.model');
 const express = require("express");
+const jwt = require("jsonwebtoken");
 const app = express();
+
+
+const SECRET_KEY = "supersecret";
+const JWT_SECRET = 'your_jwt_secret'
+
+
+app.use(express.json());
+
+const verifyJWT = (req, res, next) => {
+    const token = req.headers['authorization']
+
+    if(!token){
+        return response.status(401).json({message: "No token provided."});
+    }
+
+    try{
+        // console.log(token);
+        const decodeToken = jwt.verify(token, JWT_SECRET);
+        req.user = decodeToken;
+        next();
+    } catch(error){
+        res.status(402).json({message: "Invalid token."})
+    }
+}
+
+app.post('/admin/login', (req, res) => {
+    const {secret} = req.body;
+
+    if(secret === SECRET_KEY){
+        const token = jwt.sign({role: 'admin'}, JWT_SECRET, {expiresIn: "24h"});
+        res.json({ token });
+    } else{
+        res.json({message: "Invalid email and password."});
+    }
+});
+
+
+
+app.get('/admin/api/data', verifyJWT, (req, res) => {
+    res.json({message: "Protected route accessible"});
+});
+
+
+app.listen()
 
 const cors = require("cors");
 
@@ -346,16 +391,16 @@ app.get("/tasks/byProjects/:projId", async (req, res) => {
 
 
 //api to delete a task;
-async function deleteTaskById(taskId){
-    try{
-    const task = await Task.findByIdAndDelete(taskId);
-    console.log(task, "Task deleted successfully.")
-    } catch(error){
-        throw error;
-    }
-} 
+// async function deleteTaskById(taskId){
+//     try{
+//     const task = await Task.findByIdAndDelete(taskId);
+//     console.log(task, "Task deleted successfully.")
+//     } catch(error){
+//         throw error;
+//     }
+// } 
 
-deleteTaskById("");
+// deleteTaskById("");
 
 
 

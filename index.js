@@ -7,14 +7,23 @@ const Tag = require('./models/tag.model');
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
+const cors = require("cors");
+const bcrypt = require("bcrypt");
 
 
-const SECRET_KEY = "supersecret";
-const JWT_SECRET = 'your_jwt_secret'
+// const SECRET_KEY = "supersecret";
+// const JWT_SECRET = 'your_jwt_secret'
 
-
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 
+const users = [
+    {email: 'test@example.com', password: bcrypt.hashSync('password123', 8)}
+];
+
+const JWT_SECRET = 'your_jwt_secret';
+
+// It is a middleware of json web token..
 const verifyJWT = (req, res, next) => {
     const token = req.headers['authorization']
 
@@ -32,29 +41,47 @@ const verifyJWT = (req, res, next) => {
     }
 }
 
-app.post('/admin/login', (req, res) => {
-    const {secret} = req.body;
-
-    if(secret === SECRET_KEY){
-        const token = jwt.sign({role: 'admin'}, JWT_SECRET, {expiresIn: "24h"});
-        res.json({ token });
-    } else{
-        res.json({message: "Invalid email and password."});
-    }
+app.post('/user/login', (req, res) => {
+    const { email, password } = req.body;
+    const user = users.find((u) => u.email === email);
+    if(!user || !bcrypt.compareSync(password, user.password)){
+        return res.status(401).json({ error: 'Invalid credentials'})
+    } 
+    const token = jwt.sign({ email }, JWT_SECRET, {expiresIn: "1h"});
+    res.json({ token });
+    
 });
 
 
+app.get('/user/private/dashboard', verifyJWT, (req, res) => {
+    res.json({message: "Protected route accessible"})
+})
 
-app.get('/admin/api/data', verifyJWT, (req, res) => {
-    res.json({message: "Protected route accessible"});
-});
+
+// Protected Route
+// app.get('/user/api/private/dashboard', (req, res) => {
+//     const auth = req.headers['authorization'];
+//     console.log(auth, "checking auth")
+//     if(!auth){
+//         return res.status(401).json({error: 'No token provided'});
+//     }
+
+//     if (!auth.startsWith('Bearer ')) {
+//   return res.status(401).json({ error: 'Invalid authorization format' });
+//   // Proceed with JWT verification...
+// }
+// const token = auth.slice(7).trim(); // remove 'Bearer ' and any extra spaces
+
+// try {
+// const decodeToken = jwt.verify(token, JWT_SECRET);
+// res.json({ msg: 'Protected Data', user: decodeToken.email });
+// } catch (err) {
+// res.status(401).json({ message: 'Invalid token' });
+// }
+// });
 
 
-app.listen()
 
-const cors = require("cors");
-
-app.use(cors());
 
 app.use(express.json());
 

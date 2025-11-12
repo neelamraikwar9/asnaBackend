@@ -11,14 +11,13 @@ const cors = require("cors");
 const bcrypt = require("bcrypt");
 
 
-// const SECRET_KEY = "supersecret";
-// const JWT_SECRET = 'your_jwt_secret'
-
 app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json());
 
 const users = [
     {email: 'test@example.com', password: bcrypt.hashSync('password123', 8)}
+    // {email: '', password: bcrypt.hashSync('', 8)}
+
 ];
 
 const JWT_SECRET = 'your_jwt_secret';

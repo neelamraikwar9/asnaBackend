@@ -8,7 +8,13 @@ const projectSchema = new mongoose.Schema({
 
  technologies: { type: String }, 
 
- createdAt: { type: Date, default: Date.now }
+ status: {
+ type: String,
+ enum: ['To Do', 'In Progress', 'Completed', 'Blocked'], // Enum for task status
+ default: 'To Do'
+ }, // Task status
  
+
+ createdAt: { type: Date, default: Date.now }
 });
 module.exports = mongoose.model('Project', projectSchema);

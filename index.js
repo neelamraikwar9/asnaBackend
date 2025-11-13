@@ -257,7 +257,7 @@ app.post("/projects", async(req, res) => {
 
 const getAllTasks = async() => {
     try{
-        const tasks = await Task.find();
+        const tasks = await Task.find().populate(["project", "team", "owners"]);
         console.log(tasks, "getting all tasks.")
         return tasks;
     } catch(error){

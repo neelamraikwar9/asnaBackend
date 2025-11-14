@@ -149,9 +149,17 @@ initializeDB();
 //     email: "daleCarnegi2025@gmail.com"
 // }
 
-// const addUsers = async () => {
+
+// const user4 = {
+//     name: "Sohan",
+//     email: "sohan2025@gmail.com"
+// }
+
+
+
+// const addUsers = async (user4) => {
 //     try{
-//         const newUser = new User();
+//         const newUser = new User(user4);
 //         const saveNewUser =  await newUser.save();
 //         console.log(saveNewUser, "New User added successfully.")
 //     } catch(error){
@@ -159,7 +167,7 @@ initializeDB();
 //     }
 // }
 
-// addUsers()
+// addUsers(user4);
 
 
 
@@ -350,7 +358,7 @@ app.get("/tasks/status/:taskStatus", async (req, res) => {
 });
 
 
-//api to get tasks by "project", "team", "owners"
+//api to get tasks by "project", "team", "owners"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
 async function getTasksByProjects(projId){
     try{
@@ -428,13 +436,136 @@ app.get("/tasks/byProjects/:projId", async (req, res) => {
 
 // deleteTaskById("");
 
+// const newTeam = new Team ({
+//     name: "Generous",
+//     member: ["691711c36ce1842ec65b2cbb", "691712291e988e4d3d2c0cda", "69171244ea34ccad2a58ad82"],
+//     description: "Provide honest help to customers.",
+//     // member1: "",
+//     // member2:"",
+//     // member3: ""
+// });
+
+
+//api to add new team; 
+async function addNewTeam(newTeam){
+    try{
+        const teamNew = new Team(newTeam);
+        const saveTeam = await teamNew.save();
+        console.log(saveTeam, "team added.")
+        return saveTeam;
+
+    } catch(error){
+        throw error;
+    }
+}
+
+// addNewTeam(newTeam);
+
+
+app.post("/teams", async(req, res) => {
+    try{
+        const newTeam = req.body;
+        const teams = await addNewTeam(newTeam);
+        console.log(teams, )
+        res.status(201).json({message: " Team added successfully.", teamNew: teams})
+    }  catch(error){
+        res.status(500).json({error: 'Failed to add Team.'})
+    }
+})
+
+
+//api to get teams; 
+async function getAllTeams(){
+    try{
+        const getTeams = await Team.find().populate("member")
+        // console.log(getTeams, "gettin all teams.");
+        // console.log(JSON.stringify(getTeams, null, 2));
+
+        return getTeams;
+    } catch(error){
+        throw error; 
+    }
+}
+
+// getAllTeams();
+
+
+// api
+
+app.get("/teams", async (req, res) => {
+    try{
+        const allTeams = await getAllTeams();
+        console.log(allTeams, "chekin all teams.");
+        if(allTeams){
+            res.json(allTeams);
+        } else{
+            res.status(404).json({error: "Teams not found."})
+        }
+    } catch(error){
+        res.status(500).json({error: "Failed to fetch teams."})
+    }
+})
 
 
 
+//api to get all users/members/owners;
+
+async function getAllUsers(){
+    try{
+    const allUsers =  await User.find();
+    console.log(allUsers, "getting all users.");
+    return allUsers;
+    } catch(error){
+        throw error;
+    }
+}
+// getAllUsers();
+
+//api;
+app.get("/users", async (req, res) => {
+    try{
+        const users = await getAllUsers();
+        if(users){
+            res.json(users);
+        } else{
+            res.status(404).json({error: "Users not found."})
+        }
+    } catch(error){
+        res.status(500).json({error: "Cannot fetch Users."})
+    }
+});
 
 
 
+// api to add users team members.
 
+// const newUser = {
+//     name: "Mac",
+//     email: "Don"
+// }
+
+const addNewUser = async (newUser) => {
+    try{
+        const newUsers =  new User(newUser);
+        const saveNew = await newUsers.save();
+        console.log(saveNew, "new user added successfully.");
+        return saveNew;
+    } catch(error){
+        throw error;
+    }
+}
+
+// addNewUser(newUser);
+
+app.post("/users", async(req, res) => {
+    try{
+    const newUser = req.body;
+    const users = await addNewUser(newUser);
+    res.status(201).json({message: " Users added successfully.", newUsers: users})
+    } catch(error){
+        res.status(500).json({error: 'Failed to add Users.'})
+    }
+})
 
 
 

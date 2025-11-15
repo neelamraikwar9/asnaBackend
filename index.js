@@ -387,7 +387,7 @@ app.get("/tasks/status/:taskStatus", async (req, res) => {
 });
 
 
-//api to get tasks by "project", "team", "owners"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
+// api to get tasks by "project", "team", "owners"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
 
 async function getTasksByProjects(projId){
     try{
@@ -431,21 +431,6 @@ app.get("/tasks/byProjects/:projId", async (req, res) => {
 
 // getTasksByTeams("69109157b9e38c37e4c55feb")
 
-
-
-
-
-// async function getTasksByOwners(ownerId){
-//     try{
-//         const tasksByProjs = await Task.find({ owners: ownerId }).populate("project");
-//         console.log(tasksByProjs, "Tasks by project id.")
-//         return tasksByProjs;
-//     } catch(error){
-//         throw error;
-//     }
-// }
-
-// getTasksByOwners("69109157b9e38c37e4c55feb")
 
 
 

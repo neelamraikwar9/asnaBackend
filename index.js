@@ -213,7 +213,7 @@ async function getAllProjects(){
 
 // getAllProjects();
 
-//api to get projects;
+//api to get all projects;
 app.get("/projects", async (req, res) => {
     try{
         const projects = await getAllProjects();
@@ -227,6 +227,35 @@ app.get("/projects", async (req, res) => {
     }
 }
 )
+
+//api to get projects by status;
+
+async function getProjectsBystatus(projStatus){
+    try{
+        const projectStatus = await Project.find({status: projStatus});
+        console.log(projectStatus, 'projectStatus');
+        return projectStatus;
+    } catch(error){
+        throw error; 
+    }
+}
+// getProjectsBystatus("Completed");
+
+
+//api
+app.get("/projects/status/:projStatus", async (req, res) => {
+    try{
+        const projByStatus = await getProjectsBystatus(req.params.projStatus);
+        console.log(projByStatus);
+        if(projByStatus){
+            res.json(projByStatus);
+        } else{
+            res.status(404).json({error: "Projects by status not found."});
+        }
+    } catch(error){
+        res.status(500).json({error: "Failed to fetch Projects by status."});
+    }
+})
 
 
 // const newProj = {

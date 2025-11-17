@@ -583,6 +583,45 @@ app.post("/users", async(req, res) => {
 })
 
 
+//api to add tags and add tags in MonogDB.
+
+// let newTag = {
+//     name: "Support"
+// }
+
+let newTag = {
+    name: "Urgent"
+}
+
+// query/ method to add tags;
+
+async function addTags(newTag){
+    try{
+    const tags =  new Tag(newTag);
+    const saveTags = await tags.save();
+    console.log(saveTags, "Tag added successfully.");
+    return saveTags;
+    } catch(error){
+        throw error; 
+    }
+}
+
+// addTags(newTag);
+
+// api to add new tag; 
+
+app.post("/tags", async (req, res) => {
+    try{
+        const newTag = req.body;
+        const saveTag = await addTags(newTag);
+        console.log(saveTag);
+        if(saveTag){
+            res.status(201).json({message: "Tag added successfully.", tags: saveTag})
+        }
+    } catch(error){
+        res.status(500).json({error: "Failde to add tag."})
+    }
+})
 
 
 

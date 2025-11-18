@@ -6,7 +6,7 @@ const projectSchema = new mongoose.Schema({
 
  description: { type: String }, // Optional field for project details
 
- technologies: { type: String }, 
+ technologies: { type: String },  // Optional field for project details
 
  status: {
  type: String,

@@ -323,7 +323,7 @@ app.get("/tasks", async(req, res) => {
 // get task by id; 
 async function taskById(taskId){
     try{
-        const tasks = await Task.findById(taskId);
+        const tasks = await Task.findById(taskId).populate(["project", "team", "owners"]);
         console.log(tasks);
         return tasks; 
     } catch(error){

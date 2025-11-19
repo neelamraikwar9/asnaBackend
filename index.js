@@ -320,6 +320,34 @@ app.get("/tasks", async(req, res) => {
 })
 
 
+// get task by id; 
+async function taskById(taskId){
+    try{
+        const tasks = await Task.findById(taskId);
+        console.log(tasks);
+        return tasks; 
+    } catch(error){
+        throw error; 
+    }
+}
+
+// taskById("6910a1352d61b81fb8aa2d3f");
+
+app.get("/tasks/taskById/:taskId", async(req, res) => {
+    try{
+        const getTask = await taskById(req.params.taskId);
+        console.log(getTask);
+        if(getTask){
+            res.json(getTask);
+        } else{
+            res.status(404).json({error: "Failed to get Task by Id."})
+        }
+    } catch(error){
+        res.status(500).json({error: "Cannot fetch Task by Id."})
+    }
+})
+
+
 //method to add new Task;
 
 

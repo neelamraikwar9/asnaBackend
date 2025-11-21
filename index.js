@@ -445,6 +445,33 @@ app.get("/tasks/byProjects/:projId", async (req, res) => {
 })
 
 
+// api to get tasks by status;
+async function getTaskByStatus(taskStatus){
+    try{
+        const getTasks = await Task.find({status: taskStatus});
+        console.log(getTasks, 'Tasks by status');
+        return getTasks; 
+    } catch(error){
+        throw error; 
+    }
+}
+
+// getTaskByStatus("In Progress");
+
+app.get("/tasks/byStatus/:taskStatus", async(req, res) => {
+    try{
+        const taskByStatus = await getTaskByStatus(req.params.taskStatus);
+        console.log(taskByStatus);
+        if(taskByStatus){
+            res.json(taskByStatus)
+        } else{
+            res.status(404).json({error: "Task by status is not found."})
+        } 
+    } catch(error){
+        res.status(500).json({error: "Failed to fetch Task by Status."})
+    }
+})
+
 
 
 // async function getTasksByTeams(teamId){

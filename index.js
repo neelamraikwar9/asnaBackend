@@ -554,13 +554,23 @@ app.post("/teams", async(req, res) => {
 })
 
 
+
+
+
+
+
+
+
+
+
+
+
 //api to get teams; 
 async function getAllTeams(){
     try{
-        const getTeams = await Team.find().populate("member")
-        // console.log(getTeams, "gettin all teams.");
+        const getTeams = await Team.find()
+        console.log(getTeams, "gettin all teams.");
         // console.log(JSON.stringify(getTeams, null, 2));
-
         return getTeams;
     } catch(error){
         throw error; 

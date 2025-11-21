@@ -447,9 +447,9 @@ app.get("/tasks/byProjects/:projId", async (req, res) => {
 
 // api to get tasks by status;
 async function getTaskByStatus(taskStatus){
-    try{
-        const getTasks = await Task.find({status: taskStatus});
-        console.log(getTasks, 'Tasks by status');
+    try{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
+        const getTasks = await Task.find({status: taskStatus}).populate(["project", "team", "owners"]);
+        console.log(getTasks, 'Tasks by status');                                                                                                                                                                                                                                                                                                                          
         return getTasks; 
     } catch(error){
         throw error; 

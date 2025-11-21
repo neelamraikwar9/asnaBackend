@@ -515,6 +515,15 @@ app.get("/tasks/byStatus/:taskStatus", async(req, res) => {
 // });
 
 
+// const newTeam = new Team ({
+//     name: "Testing Team ",
+//     member1: "user 1",
+//     member2:"user 2",
+//     member3: "user 3",
+//     description: "Provide honest help to customers by testing products.",
+// });
+
+
 //api to add new team; 
 async function addNewTeam(newTeam){
     try{
@@ -535,10 +544,12 @@ app.post("/teams", async(req, res) => {
     try{
         const newTeam = req.body;
         const teams = await addNewTeam(newTeam);
-        console.log(teams, )
+        console.log(teams, "teams");
+        if(teams){
         res.status(201).json({message: " Team added successfully.", teamNew: teams})
+        }
     }  catch(error){
-        res.status(500).json({error: 'Failed to add Team.'})
+        res.status(500).json({error: 'Failed to add Team.'});
     }
 })
 
@@ -674,7 +685,7 @@ app.post("/tags", async (req, res) => {
             res.status(201).json({message: "Tag added successfully.", tags: saveTag})
         }
     } catch(error){
-        res.status(500).json({error: "Failde to add tag."})
+        res.status(500).json({error: "Failed to add tag."});
     }
 })
 

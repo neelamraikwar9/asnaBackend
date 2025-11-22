@@ -614,7 +614,64 @@ app.get("/tasks/report/allTasks", async(req, res) => {
 });
 
 
+//api to get total "To do" Tasks
+async function totalPendingTask(){
+    try{
+        const totalTask = await Task.countDocuments({status: "To Do"});
+        console.log(totalTask, "totalPendingTasks");
+        return totalTask; 
+    } catch(error){
+        console.log(error, "error");
+    }
+};
+// totalPendingTask();
 
+
+app.get("/tasks/report/pendingTasks", async(req, res) => {
+    try{
+        const pendingTasks = await totalPendingTask();
+        console.log(pendingTasks, "Pending Tasks");
+        if(pendingTasks){
+            res.status(200).json({totalPendingTasks : pendingTasks})
+        } else{
+        res
+        .status(404)
+        .json({ error: "Total all Tasks is not found." });
+        }
+    } catch (error) {
+    res.status(500).json({ error: "Cannot fetch total of all Tasks." });
+  }
+});
+
+
+//api to get total "To do" Tasks
+async function totalBlockedTask(){
+    try{
+        const totalTask = await Task.countDocuments({status: "Blocked"});
+        console.log(totalTask, "totalBlockedTasks");
+        return totalTask; 
+    } catch(error){
+        console.log(error, "error");
+    }
+};
+// totalBlockedTask();
+
+
+app.get("/tasks/report/blockedTasks", async(req, res) => {
+    try{
+        const BlockedTasks = await totalBlockedTask();
+        console.log(BlockedTasks, "Blocked Tasks");
+        if(BlockedTasks){
+            res.status(200).json({totalBlockedTasks : BlockedTasks})
+        } else{
+        res
+        .status(404)
+        .json({ error: "Blocked tasks is not found." });
+        }
+    } catch (error) {
+    res.status(500).json({ error: "Cannot fetch blocked Tasks." });
+  }
+});
 
 
 

@@ -493,17 +493,63 @@ app.get("/tasks/byStatus/:taskStatus", async(req, res) => {
 
 
 
-//api to delete a task;
-// async function deleteTaskById(taskId){
-//     try{
-//     const task = await Task.findByIdAndDelete(taskId);
-//     console.log(task, "Task deleted successfully.")
-//     } catch(error){
-//         throw error;
-//     }
-// } 
+// api to delete a task;
+async function deleteTaskById(taskId){
+    try{
+    const task = await Task.findByIdAndDelete(taskId);
+    console.log(task, "Task deleted successfully.")
+    return task;
+    } catch(error){
+        throw error;
+    }
+} 
 
-// deleteTaskById("");
+// deleteTaskById("691ff88f069e379b96e52636");
+
+//api 
+
+app.delete("/tasks/:taskId", async(req, res) => {
+    try{
+    const delTask = await deleteTaskById(req.params.taskId);
+    console.log(delTask, "Task deleted");
+    if(delTask){
+        res.status(200).json({message: "Task deleted successfully."});
+    } 
+} catch(error){
+    res.status(500).json({ error: "Failed to delete Task." });
+}
+});
+
+
+// api to delete a project;
+async function deleteProjectById(projId){
+    try{
+    const project = await Project.findByIdAndDelete(projId);
+    console.log(project, "Project deleted successfully.")
+    return project;
+    } catch(error){
+        throw error;
+    }
+} 
+
+// deleteProjectById("69200068c40ac4071bf05a87");
+
+
+app.delete("/projects/:projId", async(req, res) => {
+    try{
+    const delProject = await deleteProjectById(req.params.projId);
+    console.log(delProject, "Task deleted");
+    if(delProject){
+        res.status(200).json({message: "Project deleted successfully."});
+    } 
+} catch(error){
+    res.status(500).json({ error: "Failed to deleted Project Task." });
+}
+});
+
+
+
+
 
 // const newTeam = new Team ({
 //     name: "Generous",

@@ -553,7 +553,7 @@ app.post("/teams", async(req, res) => {
     }
 })
 
-
+//api to get totalCompleteTasks
 async function totalCompleteTask(){
     try{
         const totalTask = await Task.countDocuments({status: "Completed"});
@@ -583,6 +583,35 @@ app.get("/tasks/report/completedTasks", async(req, res) => {
 });
 
 
+
+//api to get totoalAllTasks; 
+async function totalAllTasks(){
+    try{
+        const totalTask = await Task.countDocuments({status: {$ne: "Completed"}});
+        console.log(totalTask, "total of all Tasks");
+        return totalTask; 
+    } catch(error){
+        console.log(error, "error");
+    }
+};
+// totalAllTasks();
+
+
+app.get("/tasks/report/allTasks", async(req, res) => {
+    try{
+        const Tasks = await totalAllTasks();
+        console.log(Tasks, "All Tasks");
+        if(Tasks){
+            res.status(200).json({totalAllTasks : Tasks})
+        } else{
+        res
+        .status(404)
+        .json({ error: "Total all Tasks is not found." });
+        }
+    } catch (error) {
+    res.status(500).json({ error: "Cannot fetch total of all Tasks." });
+  }
+});
 
 
 

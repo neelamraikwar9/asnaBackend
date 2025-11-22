@@ -530,30 +530,30 @@ app.delete("/tasks/:taskId", async(req, res) => {
 
 
 // api to delete a project;
-// async function deleteProjectById(projId){
-//     try{
-//     const project = await Project.findByIdAndDelete(projId);
-//     console.log(project, "Project deleted successfully.")
-//     return project;
-//     } catch(error){
-//         throw error;
-//     }
-// } 
+async function deleteProjectById(projId){
+    try{
+    const project = await Project.findByIdAndDelete(projId);
+    console.log(project, "Project deleted successfully.")
+    return project;
+    } catch(error){
+        throw error;
+    }
+} 
 
 // deleteProjectById("69200068c40ac4071bf05a87");
 
 
-// app.delete("/projects/:projId", async(req, res) => {
-//     try{
-//     const delProject = await deleteProjectById(req.params.projId);
-//     console.log(delProject, "Task deleted");
-//     if(delProject){
-//         res.status(200).json({message: "Project deleted successfully."});
-//     } 
-// } catch(error){
-//     res.status(500).json({ error: "Failed to deleted Project Task." });
-// }
-// });
+app.delete("/projects/:projId", async(req, res) => {
+    try{
+    const delProject = await deleteProjectById(req.params.projId);
+    console.log(delProject, "Task deleted");
+    if(delProject){
+        res.status(200).json({message: "Project deleted successfully."});
+    } 
+} catch(error){
+    res.status(500).json({ error: "Failed to deleted Project Task." });
+}
+});
 
 
 

@@ -1,61 +1,56 @@
-const { initializeDB } = require('./db.connect');
-const Task  = require('./models/task.model');
-const Project = require('./models/project.model');
-const Team = require('./models/team.model');
-const User = require('./models/user.model');
-const Tag = require('./models/tag.model');
+const { initializeDB } = require("./db.connect");
+const Task = require("./models/task.model");
+const Project = require("./models/project.model");
+const Team = require("./models/team.model");
+const User = require("./models/user.model");
+const Tag = require("./models/tag.model");
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
 const cors = require("cors");
 const bcrypt = require("bcrypt");
 
-
-app.use(cors({ origin: '*', credentials: true }));
+app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
 
 const users = [
-    {email: 'test@example.com', password: bcrypt.hashSync('password123', 8)}
-    // {email: '', password: bcrypt.hashSync('', 8)}
-
+  { email: "test@example.com", password: bcrypt.hashSync("password123", 8) },
+  // {email: '', password: bcrypt.hashSync('', 8)}
 ];
 
-const JWT_SECRET = 'your_jwt_secret';
+const JWT_SECRET = "your_jwt_secret";
 
 // It is a middleware of json web token..
 const verifyJWT = (req, res, next) => {
-    const token = req.headers['authorization']
+  const token = req.headers["authorization"];
 
-    if(!token){
-        return response.status(401).json({message: "No token provided."});
-    }
+  if (!token) {
+    return response.status(401).json({ message: "No token provided." });
+  }
 
-    try{
-        // console.log(token);
-        const decodeToken = jwt.verify(token, JWT_SECRET);
-        req.user = decodeToken;
-        next();
-    } catch(error){
-        res.status(402).json({message: "Invalid token."})
-    }
-}
+  try {
+    // console.log(token);
+    const decodeToken = jwt.verify(token, JWT_SECRET);
+    req.user = decodeToken;
+    next();
+  } catch (error) {
+    res.status(402).json({ message: "Invalid token." });
+  }
+};
 
-app.post('/user/login', (req, res) => {
-    const { email, password } = req.body;
-    const user = users.find((u) => u.email === email);
-    if(!user || !bcrypt.compareSync(password, user.password)){
-        return res.status(401).json({ error: 'Invalid credentials'})
-    } 
-    const token = jwt.sign({ email }, JWT_SECRET, {expiresIn: "1h"});
-    res.json({ token });
-    
+app.post("/user/login", (req, res) => {
+  const { email, password } = req.body;
+  const user = users.find((u) => u.email === email);
+  if (!user || !bcrypt.compareSync(password, user.password)) {
+    return res.status(401).json({ error: "Invalid credentials" });
+  }
+  const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
+  res.json({ token });
 });
 
-
-app.get('/user/private/dashboard', verifyJWT, (req, res) => {
-    res.json({message: "Protected route accessible"})
-})
-
+app.get("/user/private/dashboard", verifyJWT, (req, res) => {
+  res.json({ message: "Protected route accessible" });
+});
 
 // Protected Route
 // app.get('/user/api/private/dashboard', (req, res) => {
@@ -79,9 +74,6 @@ app.get('/user/private/dashboard', verifyJWT, (req, res) => {
 // }
 // });
 
-
-
-
 app.use(express.json());
 
 const corsOptions = {
@@ -90,7 +82,6 @@ const corsOptions = {
 };
 
 initializeDB();
-
 
 // New Team
 // const newTeam = new Team({
@@ -104,7 +95,6 @@ initializeDB();
 // });
 // newTeam.save().then(team => console.log(team))
 // .catch(err => console.log(err));
-
 
 // New Project
 
@@ -149,13 +139,10 @@ initializeDB();
 //     email: "daleCarnegi2025@gmail.com"
 // }
 
-
 // const user4 = {
 //     name: "Sohan",
 //     email: "sohan2025@gmail.com"
 // }
-
-
 
 // const addUsers = async (user4) => {
 //     try{
@@ -168,9 +155,6 @@ initializeDB();
 // }
 
 // addUsers(user4);
-
-
-
 
 // New Task:
 
@@ -185,7 +169,6 @@ initializeDB();
 // newTask.save().then(task => console.log(task))
 // .catch(err => console.log(err));
 
-
 // const newTask = new Task({
 //  name: 'complete functions',
 //  project: '6910980709509efc9985c69d', // Reference to a Project ID
@@ -197,66 +180,61 @@ initializeDB();
 // newTask.save().then(task => console.log(task))
 // .catch(err => console.log(err));
 
-
 //query to get projects;
 
-async function getAllProjects(){
-    try{
-        const allProj = await Project.find();
-        console.log(allProj, "Getting all projects.")
-        return allProj;
-    }
-    catch{
-        throw error;
-    }
+async function getAllProjects() {
+  try {
+    const allProj = await Project.find();
+    console.log(allProj, "Getting all projects.");
+    return allProj;
+  } catch {
+    throw error;
+  }
 }
 
 // getAllProjects();
 
 //api to get all projects;
 app.get("/projects", async (req, res) => {
-    try{
-        const projects = await getAllProjects();
-        if(projects){
-            res.json(projects);
-        } else{
-            res.status(404).json({error: "Projects not found."})
-        }
-    } catch(error){
-        res.status(500).json({error: "Failed to fetch Projects."})
+  try {
+    const projects = await getAllProjects();
+    if (projects) {
+      res.json(projects);
+    } else {
+      res.status(404).json({ error: "Projects not found." });
     }
-}
-)
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch Projects." });
+  }
+});
 
 //api to get projects by status;
 
-async function getProjectsBystatus(projStatus){
-    try{
-        const projectStatus = await Project.find({status: projStatus});
-        console.log(projectStatus, 'projectStatus');
-        return projectStatus;
-    } catch(error){
-        throw error; 
-    }
+async function getProjectsBystatus(projStatus) {
+  try {
+    const projectStatus = await Project.find({ status: projStatus });
+    console.log(projectStatus, "projectStatus");
+    return projectStatus;
+  } catch (error) {
+    throw error;
+  }
 }
 // getProjectsBystatus("Completed");
 
-
 //api
 app.get("/projects/status/:projStatus", async (req, res) => {
-    try{
-        const projByStatus = await getProjectsBystatus(req.params.projStatus);
-        console.log(projByStatus);
-        if(projByStatus){
-            res.json(projByStatus);
-        } else{
-            res.status(404).json({error: "Projects by status not found."});
-        }
-    } catch(error){
-        res.status(500).json({error: "Failed to fetch Projects by status."});
+  try {
+    const projByStatus = await getProjectsBystatus(req.params.projStatus);
+    console.log(projByStatus);
+    if (projByStatus) {
+      res.json(projByStatus);
+    } else {
+      res.status(404).json({ error: "Projects by status not found." });
     }
-})
-
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch Projects by status." });
+  }
+});
 
 // const newProj = {
 //     name : "Real-time Chat Application",
@@ -265,91 +243,93 @@ app.get("/projects/status/:projStatus", async (req, res) => {
 // }
 
 //method to add new projects;
-async function addNewProj(newProj){
-    try{
+async function addNewProj(newProj) {
+  try {
     const projNew = new Project(newProj);
     const saveProj = await projNew.save();
     console.log(saveProj, "project added successfully.");
     return saveProj;
-    } catch(error){
-        throw error;
-    }
+  } catch (error) {
+    throw error;
+  }
 }
 // addNewProj();
 
 // api to add new projects;
 
-app.post("/projects", async(req, res) => {
-    try{
+app.post("/projects", async (req, res) => {
+  try {
     const newProj = req.body;
     const projects = await addNewProj(newProj);
-    res.status(201).json({message: "Project added successfully.", projNew : projects })
-    } catch(error){
-        res.status(500).json({error: 'Failed to add Project.'})
-    }
-})
-
+    res
+      .status(201)
+      .json({ message: "Project added successfully.", projNew: projects });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add Project." });
+  }
+});
 
 //query to get all tasks;
 
-const getAllTasks = async() => {
-    try{
-        const tasks = await Task.find().populate(["project", "team", "owners"]);
-        console.log(tasks, "getting all tasks.")
-        return tasks;
-    } catch(error){
-        throw error;
-    }
-}
+const getAllTasks = async () => {
+  try {
+    const tasks = await Task.find().populate(["project", "team", "owners"]);
+    console.log(tasks, "getting all tasks.");
+    return tasks;
+  } catch (error) {
+    throw error;
+  }
+};
 
 // getAllTasks();
 
 // api to get all tasks
 
-app.get("/tasks", async(req, res) => {
-    try{
+app.get("/tasks", async (req, res) => {
+  try {
     const allTasks = await getAllTasks();
-    if(allTasks){
-        res.json(allTasks);
+    if (allTasks) {
+      res.json(allTasks);
     } else {
-        res.status(404).json({error: "Tasks not found."})
+      res.status(404).json({ error: "Tasks not found." });
     }
-    } catch(error){
-        res.status(500).json({error: "Failed to fetch Tasks."})
-    }
-})
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch Tasks." });
+  }
+});
 
-
-// get task by id; 
-async function taskById(taskId){
-    try{
-        const tasks = await Task.findById(taskId).populate(["project", "team", "owners"]);
-        console.log(tasks);
-        return tasks; 
-    } catch(error){
-        throw error; 
-    }
+// get task by id;
+async function taskById(taskId) {
+  try {
+    const tasks = await Task.findById(taskId).populate([
+      "project",
+      "team",
+      "owners",
+    ]);
+    console.log(tasks);
+    return tasks;
+  } catch (error) {
+    throw error;
+  }
 }
 
 // taskById("6910a1352d61b81fb8aa2d3f");
 
-app.get("/tasks/taskById/:taskId", async(req, res) => {
-    try{
-        const getTask = await taskById(req.params.taskId);
-        console.log(getTask);
-        if(getTask){
-            res.json(getTask);
-        } else{
-            res.status(404).json({error: "Failed to get Task by Id."})
-        }
-    } catch(error){
-        res.status(500).json({error: "Cannot fetch Task by Id."})
+app.get("/tasks/taskById/:taskId", async (req, res) => {
+  try {
+    const getTask = await taskById(req.params.taskId);
+    console.log(getTask);
+    if (getTask) {
+      res.json(getTask);
+    } else {
+      res.status(404).json({ error: "Failed to get Task by Id." });
     }
-})
-
+  } catch (error) {
+    res.status(500).json({ error: "Cannot fetch Task by Id." });
+  }
+});
 
 //method to add new Task;
-
 
 // const newTask = new Task({
 //  name: 'Add a new chatboat for customers help.',
@@ -360,15 +340,14 @@ app.get("/tasks/taskById/:taskId", async(req, res) => {
 //  timeToComplete: 5
 // });
 
-
-async function addNewTask(newTask){
-    try{
-        const Tasks = new Task(newTask);
-        const saveTask = await Tasks.save();
-        console.log(saveTask, "Task added successfully.")
-    } catch(error){
-        throw error;
-    }
+async function addNewTask(newTask) {
+  try {
+    const Tasks = new Task(newTask);
+    const saveTask = await Tasks.save();
+    console.log(saveTask, "Task added successfully.");
+  } catch (error) {
+    throw error;
+  }
 }
 
 // addNewTask();
@@ -376,103 +355,103 @@ async function addNewTask(newTask){
 //api to add new task;
 
 app.post("/tasks", async (req, res) => {
-    try{
-        const newTask = req.body;
-        const newTasks = await addNewTask(newTask);
-        res.status(201).json({message: " Task added successfully.", Tasks: newTasks})
-        } 
-    catch(error){
-        res.status(500).json({error: 'Failed to add Task.'})
-    }
-})
-
+  try {
+    const newTask = req.body;
+    const newTasks = await addNewTask(newTask);
+    res
+      .status(201)
+      .json({ message: " Task added successfully.", Tasks: newTasks });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add Task." });
+  }
+});
 
 //api to get tasks by status;
 
-async function tasksByStatus(taskStatus){
-    try{
-        const InProgTask = await Task.findOne({status: taskStatus})
-        console.log(InProgTask, "Got Task with the status In progress.");
-        return InProgTask;
-    } catch(error){
-        throw error;
-    }
+async function tasksByStatus(taskStatus) {
+  try {
+    const InProgTask = await Task.findOne({ status: taskStatus });
+    console.log(InProgTask, "Got Task with the status In progress.");
+    return InProgTask;
+  } catch (error) {
+    throw error;
+  }
 }
 // tasksByStatus("In Progress");
 
-//api 
+//api
 app.get("/tasks/status/:taskStatus", async (req, res) => {
-    try{
-        const taskStatus = await tasksByStatus(req.params.taskStatus);
-        if(taskStatus){
-            res.json(taskStatus);
-        } else{
-        res.status(404).json({ error: "Task not found." });
-        }
-    } catch(error){
-    res.status(500).json({ error: "Failed to fetch Task by Status." });
+  try {
+    const taskStatus = await tasksByStatus(req.params.taskStatus);
+    if (taskStatus) {
+      res.json(taskStatus);
+    } else {
+      res.status(404).json({ error: "Task not found." });
     }
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch Task by Status." });
+  }
 });
 
+// api to get tasks by "project", "team", "owners"
 
-// api to get tasks by "project", "team", "owners"                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                
-
-async function getTasksByProjects(projId){
-    try{
-        const tasksByProjs = await Task.find({ project: projId }).populate("project");
-        console.log(tasksByProjs, "Tasks by project id.")
-        return tasksByProjs;
-    } catch(error){
-        throw error;
-    }
+async function getTasksByProjects(projId) {
+  try {
+    const tasksByProjs = await Task.find({ project: projId }).populate(
+      "project"
+    );
+    console.log(tasksByProjs, "Tasks by project id.");
+    return tasksByProjs;
+  } catch (error) {
+    throw error;
+  }
 }
 
 // getTasksByProjects("69109157b9e38c37e4c55feb");
 
-
-
 app.get("/tasks/byProjects/:projId", async (req, res) => {
-    try{
-        const getTaskByProj =  await getTasksByProjects(req.params.projId);
-        if(getTaskByProj){
-            res.json(getTaskByProj);
-        } else{
-            res.status(404).json({error: "Tasks by Projects id not found."})
-        }
-    } catch(error){
-        res.status(500).json({error: 'failed to fetch Tasks by project id.'})
+  try {
+    const getTaskByProj = await getTasksByProjects(req.params.projId);
+    if (getTaskByProj) {
+      res.json(getTaskByProj);
+    } else {
+      res.status(404).json({ error: "Tasks by Projects id not found." });
     }
-})
-
+  } catch (error) {
+    res.status(500).json({ error: "failed to fetch Tasks by project id." });
+  }
+});
 
 // api to get tasks by status;
-async function getTaskByStatus(taskStatus){
-    try{                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               
-        const getTasks = await Task.find({status: taskStatus}).populate(["project", "team", "owners"]);
-        console.log(getTasks, 'Tasks by status');                                                                                                                                                                                                                                                                                                                          
-        return getTasks; 
-    } catch(error){
-        throw error; 
-    }
+async function getTaskByStatus(taskStatus) {
+  try {
+    const getTasks = await Task.find({ status: taskStatus }).populate([
+      "project",
+      "team",
+      "owners",
+    ]);
+    console.log(getTasks, "Tasks by status");
+    return getTasks;
+  } catch (error) {
+    throw error;
+  }
 }
 
 // getTaskByStatus("In Progress");
 
-app.get("/tasks/byStatus/:taskStatus", async(req, res) => {
-    try{
-        const taskByStatus = await getTaskByStatus(req.params.taskStatus);
-        console.log(taskByStatus);
-        if(taskByStatus){
-            res.json(taskByStatus)
-        } else{
-            res.status(404).json({error: "Task by status is not found."})
-        } 
-    } catch(error){
-        res.status(500).json({error: "Failed to fetch Task by Status."})
+app.get("/tasks/byStatus/:taskStatus", async (req, res) => {
+  try {
+    const taskByStatus = await getTaskByStatus(req.params.taskStatus);
+    console.log(taskByStatus);
+    if (taskByStatus) {
+      res.json(taskByStatus);
+    } else {
+      res.status(404).json({ error: "Task by status is not found." });
     }
-})
-
-
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch Task by Status." });
+  }
+});
 
 // async function getTasksByTeams(teamId){
 //     try{
@@ -486,78 +465,57 @@ app.get("/tasks/byStatus/:taskStatus", async(req, res) => {
 
 // getTasksByTeams("69109157b9e38c37e4c55feb")
 
-
-
-
-
-
-
-
 // api to delete a task;
-async function deleteTaskById(taskId){
-    try{
+async function deleteTaskById(taskId) {
+  try {
     const task = await Task.findByIdAndDelete(taskId);
-    console.log(task, "Task deleted successfully.")
+    console.log(task, "Task deleted successfully.");
     return task;
-    } catch(error){
-        throw error;
-    }
-} 
+  } catch (error) {
+    throw error;
+  }
+}
 
 // deleteTaskById("691caa0dda16e300d3f37e17");
 
-//api 
+//api
 
-app.delete("/tasks/:taskId", async(req, res) => {
-    try{
+app.delete("/tasks/:taskId", async (req, res) => {
+  try {
     const delTask = await deleteTaskById(req.params.taskId);
     console.log(delTask, "Task deleted");
-    if(delTask){
-        res.status(200).json({message: "Task deleted successfully."});
-    } 
-} catch(error){
+    if (delTask) {
+      res.status(200).json({ message: "Task deleted successfully." });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Failed to delete Task." });
-}
+  }
 });
 
-
-
-
-
-
-
-
-
-
 // api to delete a project;
-async function deleteProjectById(projId){
-    try{
+async function deleteProjectById(projId) {
+  try {
     const project = await Project.findByIdAndDelete(projId);
-    console.log(project, "Project deleted successfully.")
+    console.log(project, "Project deleted successfully.");
     return project;
-    } catch(error){
-        throw error;
-    }
-} 
+  } catch (error) {
+    throw error;
+  }
+}
 
 // deleteProjectById("69200068c40ac4071bf05a87");
 
-
-app.delete("/projects/:projId", async(req, res) => {
-    try{
+app.delete("/projects/:projId", async (req, res) => {
+  try {
     const delProject = await deleteProjectById(req.params.projId);
     console.log(delProject, "Task deleted");
-    if(delProject){
-        res.status(200).json({message: "Project deleted successfully."});
-    } 
-} catch(error){
+    if (delProject) {
+      res.status(200).json({ message: "Project deleted successfully." });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Failed to deleted Project Task." });
-}
+  }
 });
-
-
-
-
 
 // const newTeam = new Team ({
 //     name: "Generous",
@@ -568,7 +526,6 @@ app.delete("/projects/:projId", async(req, res) => {
 //     // member3: ""
 // });
 
-
 // const newTeam = new Team ({
 //     name: "Testing Team ",
 //     member1: "user 1",
@@ -577,224 +534,197 @@ app.delete("/projects/:projId", async(req, res) => {
 //     description: "Provide honest help to customers by testing products.",
 // });
 
-
-//api to add new team; 
-async function addNewTeam(newTeam){
-    try{
-        const teamNew = new Team(newTeam);
-        const saveTeam = await teamNew.save();
-        console.log(saveTeam, "team added.")
-        return saveTeam;
-
-    } catch(error){
-        throw error;
-    }
+//api to add new team;
+async function addNewTeam(newTeam) {
+  try {
+    const teamNew = new Team(newTeam);
+    const saveTeam = await teamNew.save();
+    console.log(saveTeam, "team added.");
+    return saveTeam;
+  } catch (error) {
+    throw error;
+  }
 }
 
 // addNewTeam(newTeam);
 
-
-app.post("/teams", async(req, res) => {
-    try{
-        const newTeam = req.body;
-        const teams = await addNewTeam(newTeam);
-        console.log(teams, "teams");
-        if(teams){
-        res.status(201).json({message: " Team added successfully.", teamNew: teams})
-        }
-    }  catch(error){
-        res.status(500).json({error: 'Failed to add Team.'});
+app.post("/teams", async (req, res) => {
+  try {
+    const newTeam = req.body;
+    const teams = await addNewTeam(newTeam);
+    console.log(teams, "teams");
+    if (teams) {
+      res
+        .status(201)
+        .json({ message: " Team added successfully.", teamNew: teams });
     }
-})
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add Team." });
+  }
+});
 
 //api to get totalCompleteTasks
-async function totalCompleteTask(){
-    try{
-        const totalTask = await Task.countDocuments({status: "Completed"});
-        console.log(totalTask, "totalCompletedTasks");
-        return totalTask; 
-    } catch(error){
-        console.log(error, "error");
-    }
-};
+async function totalCompleteTask() {
+  try {
+    const totalTask = await Task.countDocuments({ status: "Completed" });
+    console.log(totalTask, "totalCompletedTasks");
+    return totalTask;
+  } catch (error) {
+    console.log(error, "error");
+  }
+}
 // totalCompleteTask();
 
-
-app.get("/tasks/report/completedTasks", async(req, res) => {
-    try{
-        const compTasks = await totalCompleteTask();
-        console.log(compTasks, "completed Tasks");
-        if(compTasks){
-            res.status(200).json({totalCompletedTasks : compTasks})
-        } else{
-        res
-        .status(404)
-        .json({ error: "Total Completed Tasks is not found." });
-        }
-    } catch (error) {
+app.get("/tasks/report/completedTasks", async (req, res) => {
+  try {
+    const compTasks = await totalCompleteTask();
+    console.log(compTasks, "completed Tasks");
+    if (compTasks) {
+      res.status(200).json({ totalCompletedTasks: compTasks });
+    } else {
+      res.status(404).json({ error: "Total Completed Tasks is not found." });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Cannot fetch total Completed Tasks." });
   }
 });
 
-
-
-//api to get totoalAllTasks; 
-async function totalAllTasks(){
-    try{
-        const totalTask = await Task.countDocuments({status: {$ne: "Completed"}});
-        console.log(totalTask, "total of all Tasks");
-        return totalTask; 
-    } catch(error){
-        console.log(error, "error");
-    }
-};
+//api to get totoalAllTasks;
+async function totalAllTasks() {
+  try {
+    const totalTask = await Task.countDocuments({
+      status: { $ne: "Completed" },
+    });
+    console.log(totalTask, "total of all Tasks");
+    return totalTask;
+  } catch (error) {
+    console.log(error, "error");
+  }
+}
 // totalAllTasks();
 
-
-app.get("/tasks/report/allTasks", async(req, res) => {
-    try{
-        const Tasks = await totalAllTasks();
-        console.log(Tasks, "All Tasks");
-        if(Tasks){
-            res.status(200).json({totalAllTasks : Tasks})
-        } else{
-        res
-        .status(404)
-        .json({ error: "Total all Tasks is not found." });
-        }
-    } catch (error) {
+app.get("/tasks/report/allTasks", async (req, res) => {
+  try {
+    const Tasks = await totalAllTasks();
+    console.log(Tasks, "All Tasks");
+    if (Tasks) {
+      res.status(200).json({ totalAllTasks: Tasks });
+    } else {
+      res.status(404).json({ error: "Total all Tasks is not found." });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Cannot fetch total of all Tasks." });
   }
 });
 
-
 //api to get total "To do" Tasks
-async function totalPendingTask(){
-    try{
-        const totalTask = await Task.countDocuments({status: "To Do"});
-        console.log(totalTask, "totalPendingTasks");
-        return totalTask; 
-    } catch(error){
-        console.log(error, "error");
-    }
-};
+async function totalPendingTask() {
+  try {
+    const totalTask = await Task.countDocuments({ status: "To Do" });
+    console.log(totalTask, "totalPendingTasks");
+    return totalTask;
+  } catch (error) {
+    console.log(error, "error");
+  }
+}
 // totalPendingTask();
 
-
-app.get("/tasks/report/pendingTasks", async(req, res) => {
-    try{
-        const pendingTasks = await totalPendingTask();
-        console.log(pendingTasks, "Pending Tasks");
-        if(pendingTasks){
-            res.status(200).json({totalPendingTasks : pendingTasks})
-        } else{
-        res
-        .status(404)
-        .json({ error: "Total all Tasks is not found." });
-        }
-    } catch (error) {
+app.get("/tasks/report/pendingTasks", async (req, res) => {
+  try {
+    const pendingTasks = await totalPendingTask();
+    console.log(pendingTasks, "Pending Tasks");
+    if (pendingTasks) {
+      res.status(200).json({ totalPendingTasks: pendingTasks });
+    } else {
+      res.status(404).json({ error: "Total all Tasks is not found." });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Cannot fetch total of all Tasks." });
   }
 });
 
-
 //api to get total "To do" Tasks
-async function totalBlockedTask(){
-    try{
-        const totalTask = await Task.countDocuments({status: "Blocked"});
-        console.log(totalTask, "totalBlockedTasks");
-        return totalTask; 
-    } catch(error){
-        console.log(error, "error");
-    }
-};
+async function totalBlockedTask() {
+  try {
+    const totalTask = await Task.countDocuments({ status: "Blocked" });
+    console.log(totalTask, "totalBlockedTasks");
+    return totalTask;
+  } catch (error) {
+    console.log(error, "error");
+  }
+}
 // totalBlockedTask();
 
-
-app.get("/tasks/report/blockedTasks", async(req, res) => {
-    try{
-        const BlockedTasks = await totalBlockedTask();
-        console.log(BlockedTasks, "Blocked Tasks");
-        if(BlockedTasks){
-            res.status(200).json({totalBlockedTasks : BlockedTasks})
-        } else{
-        res
-        .status(404)
-        .json({ error: "Blocked tasks is not found." });
-        }
-    } catch (error) {
+app.get("/tasks/report/blockedTasks", async (req, res) => {
+  try {
+    const BlockedTasks = await totalBlockedTask();
+    console.log(BlockedTasks, "Blocked Tasks");
+    if (BlockedTasks) {
+      res.status(200).json({ totalBlockedTasks: BlockedTasks });
+    } else {
+      res.status(404).json({ error: "Blocked tasks is not found." });
+    }
+  } catch (error) {
     res.status(500).json({ error: "Cannot fetch blocked Tasks." });
   }
 });
 
-
-
-
-
-
-
-
-//api to get teams; 
-async function getAllTeams(){
-    try{
-        const getTeams = await Team.find()
-        console.log(getTeams, "gettin all teams.");
-        // console.log(JSON.stringify(getTeams, null, 2));
-        return getTeams;
-    } catch(error){
-        throw error; 
-    }
+//api to get teams;
+async function getAllTeams() {
+  try {
+    const getTeams = await Team.find();
+    console.log(getTeams, "gettin all teams.");
+    // console.log(JSON.stringify(getTeams, null, 2));
+    return getTeams;
+  } catch (error) {
+    throw error;
+  }
 }
 
 // getAllTeams();
 
-
 // api
 
 app.get("/teams", async (req, res) => {
-    try{
-        const allTeams = await getAllTeams();
-        console.log(allTeams, "chekin all teams.");
-        if(allTeams){
-            res.json(allTeams);
-        } else{
-            res.status(404).json({error: "Teams not found."})
-        }
-    } catch(error){
-        res.status(500).json({error: "Failed to fetch teams."})
+  try {
+    const allTeams = await getAllTeams();
+    console.log(allTeams, "chekin all teams.");
+    if (allTeams) {
+      res.json(allTeams);
+    } else {
+      res.status(404).json({ error: "Teams not found." });
     }
-})
-
-
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch teams." });
+  }
+});
 
 //api to get all users/members/owners;
 
-async function getAllUsers(){
-    try{
-    const allUsers =  await User.find();
+async function getAllUsers() {
+  try {
+    const allUsers = await User.find();
     console.log(allUsers, "getting all users.");
     return allUsers;
-    } catch(error){
-        throw error;
-    }
+  } catch (error) {
+    throw error;
+  }
 }
 // getAllUsers();
 
 //api;
 app.get("/users", async (req, res) => {
-    try{
-        const users = await getAllUsers();
-        if(users){
-            res.json(users);
-        } else{
-            res.status(404).json({error: "Users not found."})
-        }
-    } catch(error){
-        res.status(500).json({error: "Cannot fetch Users."})
+  try {
+    const users = await getAllUsers();
+    if (users) {
+      res.json(users);
+    } else {
+      res.status(404).json({ error: "Users not found." });
     }
+  } catch (error) {
+    res.status(500).json({ error: "Cannot fetch Users." });
+  }
 });
-
-
 
 // api to add users team members.
 
@@ -804,29 +734,29 @@ app.get("/users", async (req, res) => {
 // }
 
 const addNewUser = async (newUser) => {
-    try{
-        const newUsers =  new User(newUser);
-        const saveNew = await newUsers.save();
-        console.log(saveNew, "new user added successfully.");
-        return saveNew;
-    } catch(error){
-        throw error;
-    }
-}
-
+  try {
+    const newUsers = new User(newUser);
+    const saveNew = await newUsers.save();
+    console.log(saveNew, "new user added successfully.");
+    return saveNew;
+  } catch (error) {
+    throw error;
+  }
+};
 
 // addNewUser(newUser);
 
-app.post("/users", async(req, res) => {
-    try{
+app.post("/users", async (req, res) => {
+  try {
     const newUser = req.body;
     const users = await addNewUser(newUser);
-    res.status(201).json({message: " Users added successfully.", newUsers: users})
-    } catch(error){
-        res.status(500).json({error: 'Failed to add Users.'})
-    }
-})
-
+    res
+      .status(201)
+      .json({ message: " Users added successfully.", newUsers: users });
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add Users." });
+  }
+});
 
 //api to add tags and add tags in MonogDB.
 
@@ -835,52 +765,42 @@ app.post("/users", async(req, res) => {
 // }
 
 let newTag = {
-    name: "Urgent"
-}
+  name: "Urgent",
+};
 
 // query/ method to add tags;
 
-async function addTags(newTag){
-    try{
-    const tags =  new Tag(newTag);
+async function addTags(newTag) {
+  try {
+    const tags = new Tag(newTag);
     const saveTags = await tags.save();
     console.log(saveTags, "Tag added successfully.");
     return saveTags;
-    } catch(error){
-        throw error; 
-    }
+  } catch (error) {
+    throw error;
+  }
 }
 
 // addTags(newTag);
 
-// api to add new tag; 
+// api to add new tag;
 
 app.post("/tags", async (req, res) => {
-    try{
-        const newTag = req.body;
-        const saveTag = await addTags(newTag);
-        console.log(saveTag);
-        if(saveTag){
-            res.status(201).json({message: "Tag added successfully.", tags: saveTag})
-        }
-    } catch(error){
-        res.status(500).json({error: "Failed to add tag."});
+  try {
+    const newTag = req.body;
+    const saveTag = await addTags(newTag);
+    console.log(saveTag);
+    if (saveTag) {
+      res
+        .status(201)
+        .json({ message: "Tag added successfully.", tags: saveTag });
     }
-})
-
-
-
-
-
-
-
-
-
-
+  } catch (error) {
+    res.status(500).json({ error: "Failed to add tag." });
+  }
+});
 
 const PORT = 2000;
 app.listen(PORT, () => {
-    console.log(`Server is running on the port ${PORT}`)
-})
-
-
+  console.log(`Server is running on the port ${PORT}`);
+});

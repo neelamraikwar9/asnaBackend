@@ -1,20 +1,19 @@
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 // Project Schema
 const projectSchema = new mongoose.Schema({
- name: { type: String, required: true, unique: true }, // Project names must be unique
+  name: { type: String, required: true, unique: true }, // Project names must be unique
 
- description: { type: String }, // Optional field for project details
+  description: { type: String }, // Optional field for project details
 
- technologies: { type: String },  // Optional field for project details
+  technologies: { type: String }, // Optional field for project details
 
- status: {
- type: String,
- enum: ['To Do', 'In Progress', 'Completed', 'Blocked'], // Enum for task status
- default: 'To Do'
- }, // Task status
- 
+  status: {
+    type: String,
+    enum: ["To Do", "In Progress", "Completed", "Blocked"], // Enum for task status
+    default: "To Do",
+  }, // Task status
 
- createdAt: { type: Date, default: Date.now }
+  createdAt: { type: Date, default: Date.now },
 });
-module.exports = mongoose.model('Project', projectSchema);
+module.exports = mongoose.model("Project", projectSchema);

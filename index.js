@@ -4,6 +4,7 @@ const Project = require("./models/project.model");
 const Team = require("./models/team.model");
 const User = require("./models/user.model");
 const Tag = require("./models/tag.model");
+
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const app = express();
@@ -12,69 +13,193 @@ const bcrypt = require("bcrypt");
 
 app.use(cors({ origin: "*", credentials: true }));
 app.use(express.json());
+const SECRET = "MONGODB"
+
+//sign up route;
+app.post('/api/signup', async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    // Hash password
+    const hashed = await bcrypt.hash(password, 10);
+    const user = new User({ name, email, password: hashed });
+    await user.save();
+    res.status(201).json({ message: 'User created' });
+  } catch (err) {
+    res.status(400).json({ error: 'User creation failed' });
+  }
+});
+
+
+//login rout; 
 
 const users = [
   { email: "test@example.com", password: bcrypt.hashSync("password123", 8) },
-  // {email: '', password: bcrypt.hashSync('', 8)}
 ];
 
-const JWT_SECRET = "your_jwt_secret";
 
-// It is a middleware of json web token..
-const verifyJWT = (req, res, next) => {
-  const token = req.headers["authorization"];
-
-  if (!token) {
-    return response.status(401).json({ message: "No token provided." });
-  }
-
-  try {
-    // console.log(token);
-    const decodeToken = jwt.verify(token, JWT_SECRET);
-    req.user = decodeToken;
-    next();
-  } catch (error) {
-    res.status(402).json({ message: "Invalid token." });
-  }
-};
-
-app.post("/user/login", (req, res) => {
+app.post("/api/login", (req, res) => {
   const { email, password } = req.body;
   const user = users.find((u) => u.email === email);
   if (!user || !bcrypt.compareSync(password, user.password)) {
     return res.status(401).json({ error: "Invalid credentials" });
   }
-  const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
+  const token = jwt.sign({ email: users.email, password:  users.password}, SECRET, { expiresIn: "6h" });
   res.json({ token });
 });
 
-app.get("/user/private/dashboard", verifyJWT, (req, res) => {
-  res.json({ message: "Protected route accessible" });
-});
 
-// Protected Route
-// app.get('/user/api/private/dashboard', (req, res) => {
-//     const auth = req.headers['authorization'];
-//     console.log(auth, "checking auth")
-//     if(!auth){
-//         return res.status(401).json({error: 'No token provided'});
-//     }
 
-//     if (!auth.startsWith('Bearer ')) {
-//   return res.status(401).json({ error: 'Invalid authorization format' });
-//   // Proceed with JWT verification...
-// }
-// const token = auth.slice(7).trim(); // remove 'Bearer ' and any extra spaces
 
-// try {
-// const decodeToken = jwt.verify(token, JWT_SECRET);
-// res.json({ msg: 'Protected Data', user: decodeToken.email });
-// } catch (err) {
-// res.status(401).json({ message: 'Invalid token' });
-// }
+
+
+
+
+
+
+
+// app.post("/api/login", async(req, res) => {
+//   const { email, password } = req.body;
+
+//   const user = await User.findOne({ email });
+
+//   if(!user){
+//     res.status(401).json({error: 'Invalid credentials'});
+//   }
+//   const isMatch = await bcrypt.compare(password, user.password);
+//   if(!isMatch){
+//     res.status(401).json({ error: 'Invalid credentials' });
+//   }
+
+
+  // Create JWT
+//   const token = jwt.sign({ userId: user._id, email: user.email }, SECRET, { expiresIn: '6h' });
+//   res.json({ token });
+
 // });
 
-app.use(express.json());
+
+// Middleware to verify JWT
+function authMiddleware(req, res, next) {
+  const header = req.headers.authorization;
+  if (!header) return res.status(401).json({ error: 'Missing token' });
+  const token = header.split(' ')[1];
+  try {
+    const decoded = jwt.verify(token, SECRET);
+    req.user = decoded;
+    next();
+  } catch (err) {
+    res.status(403).json({ error: 'Invalid token' });
+  }
+}
+
+
+// Protected Route Example
+app.get('/api/private', authMiddleware, (req, res) => {
+  res.json({ message: 'Welcome to the private route!', user: req.user });
+});
+
+
+
+
+
+
+
+
+
+
+
+// const users = [
+//   { email: "test@example.com", password: bcrypt.hashSync("password123", 8) },
+// ];
+
+// const JWT_SECRET = "your_jwt_secret";
+
+// // It is a middleware of json web token..
+// const verifyJWT = (req, res, next) => {
+//   const token = req.headers["authorization"];
+
+//   if (!token) {
+//     return response.status(401).json({ message: "No token provided." });
+//   }
+
+//   try {
+//     // console.log(token);
+//     const decodeToken = jwt.verify(token, JWT_SECRET);
+//     req.user = decodeToken;
+//     next();
+//   } catch (error) {
+//     res.status(402).json({ message: "Invalid token." });
+//   }
+// };
+
+// app.post("/user/login", (req, res) => {
+//   const { email, password } = req.body;
+//   const user = users.find((u) => u.email === email);
+//   if (!user || !bcrypt.compareSync(password, user.password)) {
+//     return res.status(401).json({ error: "Invalid credentials" });
+//   }
+//   const token = jwt.sign({ email }, JWT_SECRET, { expiresIn: "1h" });
+//   res.json({ token });
+// });
+
+// app.get("/user/private/dashboard", verifyJWT, (req, res) => {
+//   res.json({ message: "Protected route accessible" });
+// });
+
+
+
+
+
+
+
+
+
+
+
+
+
+//
+// const verifyJWTSignUp = (req, res, next) => {
+//   const token = req.headers["authorization"];
+
+//   if (!token) {
+//     return response.status(401).json({ message: "No token provided." });
+//   }
+//   try {
+//     const dToken = jwt.verify(token, JWT_SECRET);
+//     req.user = dToken;
+//     next();
+//   } catch (error) {
+//     res.status(402).json({ message: "Invalid token." });
+//   }
+// };
+
+// app.post("/user/sign-up", async (req, res) => {
+//   const { name, email, password } = req.body;
+
+//   const user = await User.findOne({ email });
+//   if (user) {
+//     return res.status(409).json({ error: "User already exists" });
+//   }
+
+  
+//   // Hash password and save new user
+//   const hashedPassword = bcrypt.hashSync(password, 8);
+//   const newUser = await User.create({ name, email, password: hashedPassword });
+
+//   // / Create and return JWT token (optional for instant login after sign-up)
+//   const token = jwt.sign({ email, _id: newUser._id }, JWT_SECRET, { expiresIn: "6h" });
+//   res.status(201).json({ token, user: { email: newUser.email, name: newUser.name } });
+// });
+
+// app.get("/user/sign-up/dashboard", verifyJWTSignUp, (req, res) => {
+//   res.json({ message: "Protected route accessible" });
+// });
+
+
+
+
+
 
 const corsOptions = {
   origin: "*",

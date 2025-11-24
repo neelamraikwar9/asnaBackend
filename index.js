@@ -32,69 +32,89 @@ app.post('/api/signup', async (req, res) => {
 
 //login rout; 
 
-const users = [
-  { email: "test@example.com", password: bcrypt.hashSync("password123", 8) },
-];
+// const users = [
+//   { email: "test@example.com", password: bcrypt.hashSync("password123", 8) },
+// ];
 
 
-app.post("/api/login", (req, res) => {
-  const { email, password } = req.body;
-  const user = users.find((u) => u.email === email);
-  if (!user || !bcrypt.compareSync(password, user.password)) {
-    return res.status(401).json({ error: "Invalid credentials" });
-  }
-  const token = jwt.sign({ email: users.email, password:  users.password}, SECRET, { expiresIn: "6h" });
-  res.json({ token });
-});
-
-
-
-
-
-
-
-
-
-
-
-// app.post("/api/login", async(req, res) => {
+// app.post("/api/login", (req, res) => {
 //   const { email, password } = req.body;
-
-//   const user = await User.findOne({ email });
-
-//   if(!user){
-//     res.status(401).json({error: 'Invalid credentials'});
+//   const user = users.find((u) => u.email === email);
+//   if (!user || !bcrypt.compareSync(password, user.password)) {
+//     return res.status(401).json({ error: "Invalid credentials" });
 //   }
-//   const isMatch = await bcrypt.compare(password, user.password);
-//   if(!isMatch){
-//     res.status(401).json({ error: 'Invalid credentials' });
-//   }
-
-
-  // Create JWT
-//   const token = jwt.sign({ userId: user._id, email: user.email }, SECRET, { expiresIn: '6h' });
+//   const token = jwt.sign({ email: users.email, password:  users.password}, SECRET, { expiresIn: "6h" });
 //   res.json({ token });
-
 // });
 
 
-// Middleware to verify JWT
-function authMiddleware(req, res, next) {
-  const header = req.headers.authorization;
-  if (!header) return res.status(401).json({ error: 'Missing token' });
-  const token = header.split(' ')[1];
-  try {
-    const decoded = jwt.verify(token, SECRET);
-    req.user = decoded;
-    next();
-  } catch (err) {
-    res.status(403).json({ error: 'Invalid token' });
+
+// It is a middleware of json web token..
+const verifyJWT = (req, res, next) => {
+  const token = req.headers["authorization"];
+
+  if (!token) {
+    return response.status(401).json({ message: "No token provided." });
   }
-}
+
+  try {
+    // console.log(token);
+    const decodeToken = jwt.verify(token, SECRET);
+    req.user = decodeToken;
+    next();
+  } catch (error) {
+    res.status(402).json({ message: "Invalid token." });
+  }
+};
+
+
+
+
+
+
+
+
+
+
+
+app.post("/api/login", async(req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email });
+
+  if(!user){
+    res.status(401).json({error: 'Invalid credentials'});
+  }
+  const isMatch = bcrypt.compare(password, user.password);
+  if(!isMatch){
+    res.status(401).json({ error: 'Invalid credentials' });
+  }
+
+
+  // Create JWT
+  const token = jwt.sign({ userId: user._id, email: user.email }, SECRET, { expiresIn: '6h' });
+  res.json({ token });
+
+});
+
+
+// Middleware to verify JWT
+// function authMiddleware(req, res, next) {
+//   const header = req.headers.authorization;
+//   if (!header) return res.status(401).json({ error: 'Missing token' });
+//   const token = header.split(' ')[1];
+//   try {
+//     const decoded = jwt.verify(token, SECRET);
+//     req.user = decoded;
+//     next();
+//   } catch (err) {
+//     res.status(403).json({ error: 'Invalid token' });
+//   }
+// }
 
 
 // Protected Route Example
-app.get('/api/private', authMiddleware, (req, res) => {
+app.get('/api/private', verifyJWT, (req, res) => {
   res.json({ message: 'Welcome to the private route!', user: req.user });
 });
 

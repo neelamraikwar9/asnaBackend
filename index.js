@@ -610,6 +610,39 @@ app.get("/tasks/byStatus/:taskStatus", async (req, res) => {
 
 // getTasksByTeams("69109157b9e38c37e4c55feb")
 
+
+//api to get tasks by id; 
+
+async function getTasksById(tasId){
+  try{
+    const task = await Task.findById(tasId);
+    console.log(task);
+    return task;
+  } catch(error){
+    console.log(error);
+  }
+}
+
+// getTasksById("69109e5131a943e68c84087f");
+
+app.get("/tasks/individualTask/:tasId", async(req, res) => {
+  try{
+    const task = await getTasksById(req.params.tasId);
+    console.log(task, "task")
+    if(task){
+      res.json(task);
+    } else{
+      res.status(404).json({error: "Cannot get task by Id."})
+    }
+  } catch(error){
+    res.status(500).json({error: "Failed to fetch Task by Id."})
+  }
+})
+
+
+
+
+
 // api to delete a task;
 async function deleteTaskById(taskId) {
   try {

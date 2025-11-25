@@ -474,6 +474,40 @@ app.get("/tasks/taskById/:taskId", async (req, res) => {
   }
 });
 
+
+// api to update task; 
+async function updateTaskByStatus(taskID, dataToUpdate) {
+  try {
+    const updateTask = await Task.findByIdAndUpdate(taskID, dataToUpdate, {
+      new: true,
+    });
+    return updateTask;
+  } catch (error) {
+    console.log("Error in updating Task status.", error);
+  }
+}
+
+// updateTaskByStatus("69109e5131a943e68c84087f", {status: "To Do"});
+
+app.post("/tasks/:taskID", async (req, res) => {
+  try{
+    const updatedTask =  await updateTaskByStatus(req.params.taskID, req.body);
+    if(updatedTask){
+      res.status(200).json({message: "Task updated successfully.", updateTaskByStatus: updatedTask});
+    } else{
+      res.status(404).json({error: "Task not found."})
+    } 
+  }  catch (error) {
+    res.status(500).json({ error: "Failed to update Task." });
+  }
+});
+
+
+
+
+
+
+
 //method to add new Task;
 
 // const newTask = new Task({
@@ -597,49 +631,6 @@ app.get("/tasks/byStatus/:taskStatus", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch Task by Status." });
   }
 });
-
-// async function getTasksByTeams(teamId){
-//     try{
-//         const tasksByProjs = await Task.find({ team: teamId }).populate("project");
-//         console.log(tasksByProjs, "Tasks by project id.")
-//         return tasksByProjs;
-//     } catch(error){
-//         throw error;
-//     }
-// }
-
-// getTasksByTeams("69109157b9e38c37e4c55feb")
-
-
-//api to get tasks by id; 
-
-async function getTasksById(tasId){
-  try{
-    const task = await Task.findById(tasId);
-    console.log(task);
-    return task;
-  } catch(error){
-    console.log(error);
-  }
-}
-
-// getTasksById("69109e5131a943e68c84087f");
-
-app.get("/tasks/individualTask/:tasId", async(req, res) => {
-  try{
-    const task = await getTasksById(req.params.tasId);
-    console.log(task, "task")
-    if(task){
-      res.json(task);
-    } else{
-      res.status(404).json({error: "Cannot get task by Id."})
-    }
-  } catch(error){
-    res.status(500).json({error: "Failed to fetch Task by Id."})
-  }
-})
-
-
 
 
 

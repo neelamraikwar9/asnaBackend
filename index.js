@@ -489,7 +489,7 @@ async function updateTaskByStatus(taskID, dataToUpdate) {
 
 // updateTaskByStatus("69109e5131a943e68c84087f", {status: "To Do"});
 
-app.post("/tasks/:taskID", async (req, res) => {
+app.put("/tasks/:taskID", async (req, res) => {
   try{
     const updatedTask =  await updateTaskByStatus(req.params.taskID, req.body);
     if(updatedTask){

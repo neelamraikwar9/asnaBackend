@@ -169,15 +169,6 @@ app.get('/api/private', verifyJWT, (req, res) => {
 
 
 
-
-
-
-
-
-
-
-
-
 //
 // const verifyJWTSignUp = (req, res, next) => {
 //   const token = req.headers["authorization"];

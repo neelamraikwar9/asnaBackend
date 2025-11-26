@@ -830,6 +830,30 @@ app.get("/tasks/report/blockedTasks", async (req, res) => {
   }
 });
 
+
+//api to get total worked done last week; 
+async function getWorkDone(){
+  try{
+    const today = new Date();
+    console.log(today, "today");
+
+    const sevenDaysAgo = new Date(today);
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    console.log(sevenDaysAgo, "sevendaysago");
+
+    const workDone = await Task.find({
+      status: "Completed",
+      closedAt: { $gte: sevenDaysAgo},
+    });
+    console.log(workDone,  "checking work done;")
+  } catch(error){
+    throw error; 
+  }
+}
+
+getWorkDone();
+
+
 //api to get teams;
 async function getAllTeams() {
   try {
